@@ -2,6 +2,8 @@
 const Modes = {
     Pan: "pan",
     Build: "build",
+    Door: "door",
+    Delete: "delete",
     SetSpawn: "set_spawn",
     SetExit: "set_exit"
 }
@@ -95,11 +97,36 @@ class Tile {
         return new Tile(object.position, object.up, object.left, object.down, object.right, object.type)
     }
 }
+class Door {
+    /**
+     * 
+     * @param {[number, number]} position 
+     * @param {string} direction 
+     */
+    constructor(position, direction) {
+        this.position = position
+        this.direction = direction
+    }
+    toJSON() {
+        return {
+            position: this.position,
+            direction: this.direction
+        }
+    }
+    static fromJSON(object) {
+        return new Door(object.position, object.direction)
+    }
+}
 
 /**
  * @type {Tile[]}
  */
 let tiles = []
+
+/**
+ * @type {Door[]}
+ */
+let doors = []
 
 /**
  * 
@@ -142,20 +169,20 @@ function draw(ctx) {
         const nineTenths = gridSize - oneTenth;
         const screenCorner = toScreenSpace(tile.position)
         const screenCenter = screenCorner.map((e) => e + gridSize / 2)
-        rect(ctx, [screenCorner, [gridSize, gridSize]], undefined, "lightgray")
-        rect(ctx, [screenCorner.map((e) => e + oneTenth), [gridSize, gridSize].map(e => e - twoTenths)], undefined, "white")
+        rect(ctx, [screenCorner, [gridSize, gridSize]], undefined, "#444444")
+        rect(ctx, [screenCorner.map((e) => e + oneTenth), [gridSize, gridSize].map(e => e - twoTenths)], undefined, "#dddddd")
 
         if (tile.up) {
-            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1]], [eightTenths, oneTenth]], undefined, "white")
+            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1]], [eightTenths, oneTenth + 1]], undefined, "#dddddd")
         }
         if (tile.left) {
-            rect(ctx, [[screenCorner[0], screenCorner[1] + oneTenth], [oneTenth, eightTenths]], undefined, "white")
+            rect(ctx, [[screenCorner[0], screenCorner[1] + oneTenth], [oneTenth + 1, eightTenths]], undefined, "#dddddd")
         }
         if (tile.down) {
-            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1] + nineTenths], [eightTenths, oneTenth]], undefined, "white")
+            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1] + nineTenths - 1], [eightTenths, oneTenth + 1]], undefined, "#dddddd")
         }
         if (tile.right) {
-            rect(ctx, [[screenCorner[0] + nineTenths, screenCorner[1] + oneTenth], [oneTenth, eightTenths]], undefined, "white")
+            rect(ctx, [[screenCorner[0] + nineTenths - 1, screenCorner[1] + oneTenth], [oneTenth + 1, eightTenths]], undefined, "#dddddd")
         }
 
         if (tile.type == TileTypes.Exit || tile.type == TileTypes.Home) {
@@ -163,8 +190,30 @@ function draw(ctx) {
         }
     }
 
+    for (const door of doors) {
+        const oneTenth = gridSize / 10;
+        const twoTenths = oneTenth * 2;
+        const eightTenths = twoTenths * 4;
+        const nineTenths = gridSize - oneTenth;
+
+        const screenCorner = toScreenSpace(door.position)
+
+        if (door.direction == "up") {
+            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1]], [eightTenths, oneTenth + 1]], undefined, "#704d00")
+        }
+        if (door.direction == "left") {
+            rect(ctx, [[screenCorner[0], screenCorner[1] + oneTenth], [oneTenth + 1, eightTenths]], undefined, "#704d00")
+        }
+        if (door.direction == "down") {
+            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1] + nineTenths - 1], [eightTenths, oneTenth + 1]], undefined, "#704d00")
+        }
+        if (door.direction == "right") {
+            rect(ctx, [[screenCorner[0] + nineTenths - 1, screenCorner[1] + oneTenth], [oneTenth + 1, eightTenths]], undefined, "#704d00")
+        }
+    }
+
     if (scrollValue >= 0.5) {
-        if (mode == Modes.Build) {
+        if (mode == Modes.Build || mode == Modes.Door) {
             const worldCoordinates = toWorldSpace(mouse).map((e) => Math.floor(e))
             const corner = toScreenSpace(worldCoordinates)
 
@@ -181,29 +230,46 @@ function draw(ctx) {
             const down = [[corner[0] + oneThird, corner[1] + twoThirds], [oneThird, oneThird]];
             const inDown = inRect(mouse, down);
             
-            if (mouseClicked && (inUp || inLeft || inRight || inDown)) {
-                let tile = tiles.find((tile) => tile.position[0] == worldCoordinates[0] && tile.position[1] == worldCoordinates[1])
-                
-                if (tile == undefined) {
-                    tile = new Tile(worldCoordinates, false, false, false, false, TileTypes.Basic)
-                    tiles.push(tile)
-                }
+            if (mode == Modes.Build) {
+                if (mouseClicked && (inUp || inLeft || inRight || inDown)) {
+                    let tile = tiles.find((tile) => tile.position[0] == worldCoordinates[0] && tile.position[1] == worldCoordinates[1])
+                    
+                    if (tile == undefined) {
+                        tile = new Tile(worldCoordinates, false, false, false, false, TileTypes.Basic)
+                        tiles.push(tile)
+                    }
 
-                if (inUp) {
-                    tile.up = !tile.up;
-                }
-                if (inLeft) {
-                    tile.left = !tile.left;
-                }
-                if (inRight) {
-                    tile.right = !tile.right;
-                }
-                if (inDown) {
-                    tile.down = !tile.down;
-                }
+                    if (inUp) {
+                        tile.up = !tile.up;
+                    }
+                    if (inLeft) {
+                        tile.left = !tile.left;
+                    }
+                    if (inRight) {
+                        tile.right = !tile.right;
+                    }
+                    if (inDown) {
+                        tile.down = !tile.down;
+                    }
 
-                if (!(tile.up || tile.left || tile.right || tile.down)) {
-                    tiles = tiles.filter((test) => test != tile)
+                    if (!(tile.up || tile.left || tile.right || tile.down)) {
+                        tiles = tiles.filter((test) => test != tile)
+                    }
+                }
+            } else {
+                if (mouseClicked && (inUp || inLeft || inRight || inDown)) {
+                    let doorsOnTile = doors.filter((door) => door.position[0] == worldCoordinates[0] && door.position[1] == worldCoordinates[1])
+
+                    const dir = (inUp ? "up" : (inLeft ? "left" : (inRight ? "right" : (inDown ? "down" : ""))))
+
+                    let door = doorsOnTile.find((door) => door.direction == dir)
+
+                    if (door == undefined) {
+                        door = new Door(worldCoordinates, dir)
+                        doors.push(door)
+                    } else {
+                        doors = doors.filter((test) => test != door);
+                    }
                 }
             }
             rect(ctx, up, "black", inUp ? "gray" : undefined);
@@ -221,13 +287,17 @@ function draw(ctx) {
             const inBox = inRect(mouse, box)
 
             let tile = tiles.find((tile) => tile.position[0] == worldCoordinates[0] && tile.position[1] == worldCoordinates[1])
+            let doorsOnTile = doors.filter((door) => door.position[0] == worldCoordinates[0] && door.position[1] == worldCoordinates[1])
 
-            if (tile != undefined) {
+            if (tile != undefined || doorsOnTile.length > 0) {
                 if (mouseClicked && inBox) {
                     if (mode == Modes.SetSpawn) {
                         tile.type = TileTypes.Home
                     } else if (mode == Modes.SetExit) {
                         tile.type = TileTypes.Exit
+                    } else if (mode == Modes.Delete) {
+                        tiles = tiles.filter((test) => test != tile)
+                        doors = doors.filter((door) => !doorsOnTile.includes(door))
                     }
                 }
 
@@ -331,8 +401,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("pan").addEventListener("click", function(event) {
             mode = Modes.Pan
         })
+        document.getElementById("delete").addEventListener("click", function(event) {
+            mode = Modes.Delete
+        })
         document.getElementById("hammer").addEventListener("click", function(event) {
             mode = Modes.Build
+        })
+        document.getElementById("door").addEventListener("click", function(event) {
+            mode = Modes.Door
         })
         document.getElementById("home").addEventListener("click", function(event) {
             mode = Modes.SetSpawn
@@ -358,25 +434,72 @@ document.addEventListener('DOMContentLoaded', function() {
             await writable.write(save);
             await writable.close();
         })
+        document.getElementById("upload").addEventListener("click", async function(event) {
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [{
+                    description: 'JSON Files',
+                    accept: { 'application/json': ['.json'] }
+                }],
+                excludeAcceptAllOption: true,
+                multiple: false
+            });
+            const file = await fileHandle.getFile();
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const content = event.target.result;
+                
+                const saveData = JSON.parse(content)
+
+                if (saveData instanceof Array) {
+                    tiles = []
+                    doors = []
+
+                    for (const element of saveData) {
+                        tiles.push(Tile.fromJSON(element))
+                    }
+
+                } else {
+                    tiles = []
+                    doors = []
+
+                    for (const element of saveData.tiles) {
+                        tiles.push(Tile.fromJSON(element))
+                    }
+                    for (const element of saveData.doors) {
+                        doors.push(Door.fromJSON(element))
+                    }
+                }
+            }
+
+            reader.readAsText(file)
+        })
         document.getElementById("restart").addEventListener("click", function(event) {
             if (confirm("Reset workspace?")) {
                 tiles = []
+                doors = []
             }
         })
     }
 
     try {
-        const saveData = JSON.parse(localStorage.getItem("velocityMapMaker-cache") ?? "[]")
+        const saveData = JSON.parse(localStorage.getItem("velocityMapMaker-cache") ?? `{"tiles":[],"doors":[]}`)
 
-        for (const element of saveData) {
+        for (const element of saveData.tiles) {
             tiles.push(Tile.fromJSON(element))
         }
+        for (const element of saveData.doors) {
+            doors.push(Door.fromJSON(element))
+        }
     } catch (err) {
-        localStorage.removeItem("velocityMapMaker-cache",)
+        localStorage.removeItem("velocityMapMaker-cache")
     }
 
     addEventListener("beforeunload", function() {
-        localStorage.setItem("velocityMapMaker-cache", JSON.stringify(tiles))
+        localStorage.setItem("velocityMapMaker-cache", JSON.stringify({
+            tiles,
+            doors
+        }))
     })
     
 

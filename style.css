@@ -45,6 +45,15 @@ canvas {
     background: center / contain no-repeat url(pan.png) lightgray;
 }
 
+#delete {
+    background: center / contain no-repeat url(delete.png);
+    image-rendering: pixelated;
+}
+
+#delete:hover {
+    background: center / contain no-repeat url(delete.png) lightgray;
+}
+
 #hammer {
     background: center / contain no-repeat url(hammer.png);
     image-rendering: pixelated;
@@ -52,6 +61,15 @@ canvas {
 
 #hammer:hover {
     background: center / contain no-repeat url(hammer.png) lightgray;
+}
+
+#door {
+    background: center / contain no-repeat url(door.png);
+    image-rendering: pixelated;
+}
+
+#door:hover {
+    background: center / contain no-repeat url(door.png) lightgray;
 }
 
 #home {
@@ -90,3 +108,11 @@ canvas {
     background: center / contain no-repeat url(restart.png) lightgray;
 }
 
+#upload {
+    background: center / contain no-repeat url(upload.png);
+    image-rendering: pixelated;
+}
+
+#upload:hover {
+    background: center / contain no-repeat url(upload.png) lightgray;
+}

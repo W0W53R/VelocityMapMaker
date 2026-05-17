@@ -418,7 +418,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         document.getElementById("download").addEventListener("click", async function(event) {
             // Downlaod
-            const save = JSON.stringify(tiles)
+            const save = JSON.stringify({
+                tiles,
+                doors
+            })
 
             const handle = await window.showSaveFilePicker({
                 suggestedName: 'map.json',

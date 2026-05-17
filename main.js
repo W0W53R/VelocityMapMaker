@@ -261,7 +261,7 @@ function draw(ctx) {
         }
     }
 
-    if (scrollValue >= 0.5) {
+    if (scrollValue >= -0.6) {
         if (mode == Modes.Build || mode == Modes.Door || mode == Modes.Buttons) {
             const worldCoordinates = toWorldSpace(mouse).map((e) => Math.floor(e))
             const corner = toScreenSpace(worldCoordinates)
@@ -356,9 +356,17 @@ function draw(ctx) {
             if (tile != undefined || doorsOnTile.length > 0) {
                 if (mouseClicked && inBox) {
                     if (mode == Modes.SetSpawn) {
-                        tile.type = TileTypes.Home
+                        if (tile.type == TileTypes.Home) {
+                            tile.type = TileTypes.Basic
+                        } else {
+                            tile.type = TileTypes.Home
+                        }
                     } else if (mode == Modes.SetExit) {
-                        tile.type = TileTypes.Exit
+                        if (tile.type == TileTypes.Exit) {
+                            tile.type = TileTypes.Basic
+                        } else {
+                            tile.type = TileTypes.Exit
+                        }
                     } else if (mode == Modes.Delete) {
                         tiles = tiles.filter((test) => test != tile)
                         doors = doors.filter((door) => !doorsOnTile.includes(door))

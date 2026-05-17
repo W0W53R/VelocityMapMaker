@@ -72,6 +72,16 @@ canvas {
     background: center / contain no-repeat url(door.png) lightgray;
 }
 
+#button {
+    background: center / contain no-repeat url(button.png);
+    image-rendering: pixelated;
+}
+
+#button:hover {
+    background: center / contain no-repeat url(button.png) lightgray;
+}
+
+
 #home {
     background: center / contain no-repeat url(home.png);
     image-rendering: pixelated;

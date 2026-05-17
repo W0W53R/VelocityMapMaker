@@ -3,6 +3,7 @@ const Modes = {
     Pan: "pan",
     Build: "build",
     Door: "door",
+    Buttons: "buttons",
     Delete: "delete",
     SetSpawn: "set_spawn",
     SetExit: "set_exit"
@@ -117,6 +118,26 @@ class Door {
         return new Door(object.position, object.direction)
     }
 }
+class Button {
+    /**
+     * 
+     * @param {[number, number]} position 
+     * @param {string} direction 
+     */
+    constructor(position, direction) {
+        this.position = position
+        this.direction = direction
+    }
+    toJSON() {
+        return {
+            position: this.position,
+            direction: this.direction
+        }
+    }
+    static fromJSON(object) {
+        return new Door(object.position, object.direction)
+    }
+}
 
 /**
  * @type {Tile[]}
@@ -127,6 +148,11 @@ let tiles = []
  * @type {Door[]}
  */
 let doors = []
+
+/**
+ * @type {Button[]}
+ */
+let buttons = []
 
 /**
  * 
@@ -211,9 +237,32 @@ function draw(ctx) {
             rect(ctx, [[screenCorner[0] + nineTenths - 1, screenCorner[1] + oneTenth], [oneTenth + 1, eightTenths]], undefined, "#704d00")
         }
     }
+    for (const button of buttons) {
+        const oneTenth = gridSize / 10;
+        const twoTenths = oneTenth * 2;
+        const fourTenths = oneTenth * 4;
+        const oneHalf = gridSize / 2;
+        const eightTenths = twoTenths * 4;
+        const nineTenths = gridSize - oneTenth;
+
+        const screenCorner = toScreenSpace(button.position)
+
+        if (button.direction == "up") {
+            rect(ctx, [[screenCorner[0] + fourTenths, screenCorner[1] + oneTenth], [twoTenths, oneTenth + 1]], undefined, "red")
+        }
+        if (button.direction == "left") {
+            rect(ctx, [[screenCorner[0] + oneTenth, screenCorner[1] + fourTenths], [oneTenth + 1, twoTenths]], undefined, "red")
+        }
+        if (button.direction == "down") {
+            rect(ctx, [[screenCorner[0] + fourTenths, screenCorner[1] + eightTenths - 1], [twoTenths, oneTenth + 1]], undefined, "red")
+        }
+        if (button.direction == "right") {
+            rect(ctx, [[screenCorner[0] + eightTenths - 1, screenCorner[1] + fourTenths], [oneTenth + 1, twoTenths]], undefined, "red")
+        }
+    }
 
     if (scrollValue >= 0.5) {
-        if (mode == Modes.Build || mode == Modes.Door) {
+        if (mode == Modes.Build || mode == Modes.Door || mode == Modes.Buttons) {
             const worldCoordinates = toWorldSpace(mouse).map((e) => Math.floor(e))
             const corner = toScreenSpace(worldCoordinates)
 
@@ -256,7 +305,7 @@ function draw(ctx) {
                         tiles = tiles.filter((test) => test != tile)
                     }
                 }
-            } else {
+            } else if (mode == Modes.Door) {
                 if (mouseClicked && (inUp || inLeft || inRight || inDown)) {
                     let doorsOnTile = doors.filter((door) => door.position[0] == worldCoordinates[0] && door.position[1] == worldCoordinates[1])
 
@@ -269,6 +318,21 @@ function draw(ctx) {
                         doors.push(door)
                     } else {
                         doors = doors.filter((test) => test != door);
+                    }
+                }
+            } else if (mode == Modes.Buttons) {
+                if (mouseClicked && (inUp || inLeft || inRight || inDown)) {
+                    let buttonsOnTile = buttons.filter((button) => button.position[0] == worldCoordinates[0] && button.position[1] == worldCoordinates[1])
+
+                    const dir = (inUp ? "up" : (inLeft ? "left" : (inRight ? "right" : (inDown ? "down" : ""))))
+
+                    let button = buttonsOnTile.find((button) => button.direction == dir)
+
+                    if (button == undefined) {
+                        button = new Button(worldCoordinates, dir)
+                        buttons.push(button)
+                    } else {
+                        buttons = buttons.filter((test) => test != button);
                     }
                 }
             }
@@ -410,6 +474,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("door").addEventListener("click", function(event) {
             mode = Modes.Door
         })
+        document.getElementById("button").addEventListener("click", function(event) {
+            mode = Modes.Buttons
+        })
         document.getElementById("home").addEventListener("click", function(event) {
             mode = Modes.SetSpawn
         })
@@ -420,7 +487,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Downlaod
             const save = JSON.stringify({
                 tiles,
-                doors
+                doors,
+                buttons
             })
 
             const handle = await window.showSaveFilePicker({
@@ -457,6 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (saveData instanceof Array) {
                     tiles = []
                     doors = []
+                    buttons = []
 
                     for (const element of saveData) {
                         tiles.push(Tile.fromJSON(element))
@@ -465,12 +534,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     tiles = []
                     doors = []
+                    buttons = []
 
                     for (const element of saveData.tiles) {
                         tiles.push(Tile.fromJSON(element))
                     }
                     for (const element of saveData.doors) {
                         doors.push(Door.fromJSON(element))
+                    }
+                    for (const element of saveData.buttons) {
+                        buttons.push(Door.fromJSON(element))
                     }
                 }
             }
@@ -481,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (confirm("Reset workspace?")) {
                 tiles = []
                 doors = []
+                buttons = []
             }
         })
     }
@@ -494,6 +568,9 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const element of saveData.doors) {
             doors.push(Door.fromJSON(element))
         }
+        for (const element of saveData.buttons) {
+            buttons.push(Door.fromJSON(element))
+        }
     } catch (err) {
         localStorage.removeItem("velocityMapMaker-cache")
     }
@@ -501,7 +578,8 @@ document.addEventListener('DOMContentLoaded', function() {
     addEventListener("beforeunload", function() {
         localStorage.setItem("velocityMapMaker-cache", JSON.stringify({
             tiles,
-            doors
+            doors,
+            buttons
         }))
     })
     

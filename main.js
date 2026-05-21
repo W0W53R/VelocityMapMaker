@@ -340,7 +340,7 @@ function draw(ctx) {
             rect(ctx, left, "black", inLeft ? "gray" : undefined);
             rect(ctx, right, "black", inRight ? "gray" : undefined);
             rect(ctx, down, "black", inDown ? "gray" : undefined);
-        } else {
+        } else if (mode == Modes.SetSpawn || mode == Modes.SetExit || mode == Modes.Delete) {
             const worldCoordinates = toWorldSpace(mouse).map((e) => Math.floor(e))
             const corner = toScreenSpace(worldCoordinates)
 

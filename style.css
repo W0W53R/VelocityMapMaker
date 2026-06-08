@@ -24,6 +24,24 @@ canvas {
     align-items: center;
 }
 
+#sidebar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 64px;
+    height: calc(100% - 20px);
+
+    background-color: white;
+    border: 2px solid gray;
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+}
+
 .tool {
     display: flex;
     width: 48px;
@@ -125,4 +143,31 @@ canvas {
 
 #upload:hover {
     background: center / contain no-repeat url(upload.png) lightgray;
+}
+
+#layerdown {
+    background: center / contain no-repeat url(layerdown.png);
+    image-rendering: pixelated;
+}
+
+#layerdown:hover {
+    background: center / contain no-repeat url(layerdown.png) lightgray;
+}
+
+#layerup {
+    background: center / contain no-repeat url(layerup.png);
+    image-rendering: pixelated;
+}
+
+#layerup:hover {
+    background: center / contain no-repeat url(layerup.png) lightgray;
+}
+
+#layercenter {
+    background: center / contain no-repeat url(home.png);
+    image-rendering: pixelated;
+}
+
+#layercenter:hover {
+    background: center / contain no-repeat url(home.png) lightgray;
 }

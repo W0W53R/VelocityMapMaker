@@ -546,29 +546,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const allButtons = [
+        "pan",
+        "delete",
+        "hammer",
+        "door",
+        "button",
+        "home",
+        "exit"
+    ].map((id) => document.getElementById(id))
+
+    function setActiveButton(id) {
+        allButtons.forEach((button) => {
+            if (button.id == id) {
+                button.classList.add("selected")
+            } else {
+                button.classList.remove("selected")
+            }
+        })
+    }
+
     {
-        document.getElementById("pan").addEventListener("click", function(event) {
-            mode = Modes.Pan
-        })
-        document.getElementById("delete").addEventListener("click", function(event) {
-            mode = Modes.Delete
-        })
-        document.getElementById("hammer").addEventListener("click", function(event) {
-            mode = Modes.Build
-        })
-        document.getElementById("door").addEventListener("click", function(event) {
-            mode = Modes.Door
-        })
-        document.getElementById("button").addEventListener("click", function(event) {
-            mode = Modes.Buttons
-        })
-        document.getElementById("home").addEventListener("click", function(event) {
-            mode = Modes.SetSpawn
-        })
-        document.getElementById("exit").addEventListener("click", function(event) {
-            mode = Modes.SetExit
-        })
-        document.getElementById("download").addEventListener("click", async function(event) {
+        const keymap = {}
+        function setMode(newMode, id, key) {
+            function action() {
+                mode = newMode;
+                setActiveButton(id);
+            }
+            document.getElementById(id).addEventListener("click", action);
+            keymap[key] = action;
+        }
+        setMode(Modes.Pan, "pan", "1")
+        setMode(Modes.Delete, "delete", "2")
+        setMode(Modes.Build, "hammer", "3")
+        setMode(Modes.Door, "door", "4")
+        setMode(Modes.Buttons, "button", "5")
+        setMode(Modes.SetSpawn, "home", "6")
+        setMode(Modes.SetExit, "exit", "7")
+        async function downloadSave() {
             // Downlaod
             const save = JSON.stringify(layers)
 
@@ -585,7 +600,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const writable = await handle.createWritable();
             await writable.write(save);
             await writable.close();
-        })
+        }
+        document.getElementById("download").addEventListener("click", downloadSave)
         document.getElementById("upload").addEventListener("click", async function(event) {
             const [fileHandle] = await window.showOpenFilePicker({
                 types: [{
@@ -646,21 +662,43 @@ document.addEventListener('DOMContentLoaded', function() {
         })
 
         // Sidebar buttons
-        document.getElementById("layerup").addEventListener("click", function(event) {
+        function layerUp() {
             currentLayer++;
             if (layers[currentLayer] == undefined) {
                 layers[currentLayer] = new Layer()
             }
-        });
-        document.getElementById("layercenter").addEventListener("click", function(event) {
-            currentLayer = 0;
-        });
-        document.getElementById("layerdown").addEventListener("click", function(event) {
+        }
+        keymap["ArrowUp"] = layerUp;
+        function layerDown() {
             currentLayer--;
             if (layers[currentLayer] == undefined) {
                 layers[currentLayer] = new Layer()
             }
-        });
+        }
+        keymap["ArrowDown"] = layerDown;
+        function layerCenter() {
+            currentLayer = 0;
+            scrollX = 0;
+            scrollY = 0;
+            zoom = 1;
+            scrollValue = 0;
+        }
+        keymap["Backspace"] = layerCenter
+        document.getElementById("layerup").addEventListener("click", layerUp);
+        document.getElementById("layercenter").addEventListener("click", layerCenter);
+        document.getElementById("layerdown").addEventListener("click", layerDown);
+
+        document.addEventListener("keydown", function(event) {
+            if (keymap[event.key] != undefined) {
+                keymap[event.key]()
+            }
+
+            // Save
+            if (event.ctrlKey && event.key == "s") {
+                event.preventDefault()
+                downloadSave();
+            }
+        })
     }
 
     try {

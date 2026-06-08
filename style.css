@@ -54,120 +54,36 @@ canvas {
     margin: 5px;
 }
 
-#pan {
-    background: center / contain no-repeat url(pan.png);
+.icon {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
     image-rendering: pixelated;
+    background-color: white;
 }
 
-#pan:hover {
-    background: center / contain no-repeat url(pan.png) lightgray;
+.icon:hover {
+    background-color: lightgray;
 }
 
-#delete {
-    background: center / contain no-repeat url(delete.png);
-    image-rendering: pixelated;
+.selected {
+    background-color: lightblue;
 }
 
-#delete:hover {
-    background: center / contain no-repeat url(delete.png) lightgray;
+.selected:hover {
+    background-color: lightblue;
 }
 
-#hammer {
-    background: center / contain no-repeat url(hammer.png);
-    image-rendering: pixelated;
-}
-
-#hammer:hover {
-    background: center / contain no-repeat url(hammer.png) lightgray;
-}
-
-#door {
-    background: center / contain no-repeat url(door.png);
-    image-rendering: pixelated;
-}
-
-#door:hover {
-    background: center / contain no-repeat url(door.png) lightgray;
-}
-
-#button {
-    background: center / contain no-repeat url(button.png);
-    image-rendering: pixelated;
-}
-
-#button:hover {
-    background: center / contain no-repeat url(button.png) lightgray;
-}
-
-
-#home {
-    background: center / contain no-repeat url(home.png);
-    image-rendering: pixelated;
-}
-
-#home:hover {
-    background: center / contain no-repeat url(home.png) lightgray;
-}
-
-#exit {
-    background: center / contain no-repeat url(exit.png);
-    image-rendering: pixelated;
-}
-
-#exit:hover {
-    background: center / contain no-repeat url(exit.png) lightgray;
-}
-
-#download {
-    background: center / contain no-repeat url(download.png);
-    image-rendering: pixelated;
-}
-
-#download:hover {
-    background: center / contain no-repeat url(download.png) lightgray;
-}
-
-#restart {
-    background: center / contain no-repeat url(restart.png);
-    image-rendering: pixelated;
-}
-
-#restart:hover {
-    background: center / contain no-repeat url(restart.png) lightgray;
-}
-
-#upload {
-    background: center / contain no-repeat url(upload.png);
-    image-rendering: pixelated;
-}
-
-#upload:hover {
-    background: center / contain no-repeat url(upload.png) lightgray;
-}
-
-#layerdown {
-    background: center / contain no-repeat url(layerdown.png);
-    image-rendering: pixelated;
-}
-
-#layerdown:hover {
-    background: center / contain no-repeat url(layerdown.png) lightgray;
-}
-
-#layerup {
-    background: center / contain no-repeat url(layerup.png);
-    image-rendering: pixelated;
-}
-
-#layerup:hover {
-    background: center / contain no-repeat url(layerup.png) lightgray;
-}
-
-#layercenter {
-    background: center / contain no-repeat url(home.png);
-    image-rendering: pixelated;
-}
-
-#layercenter:hover {
-    background: center / contain no-repeat url(home.png) lightgray;
-}
+#pan { background-image: url(pan.png); }
+#delete { background-image: url(delete.png); }
+#hammer { background-image: url(hammer.png); }
+#door { background-image: url(door.png); }
+#button { background-image: url(button.png); }
+#home { background-image: url(home.png); }
+#exit { background-image: url(exit.png); }
+#download { background-image: url(download.png); }
+#restart { background-image: url(restart.png); }
+#upload { background-image: url(upload.png); }
+#layerup { background-image: url(layerup.png); }
+#layercenter { background-image: url(home.png); }
+#layerdown { background-image: url(layerdown.png); }

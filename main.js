@@ -529,7 +529,9 @@ document.addEventListener('DOMContentLoaded', function() {
             startX = event.clientX;
             startY = event.clientY;
             isDragging = true;
-            mouseClicked = true;
+            if (event.button == 0) {
+                mouseClicked = true;
+            }
         });
         canvas.addEventListener('mousemove', function(event) {
             mouseX = event.clientX;
@@ -576,6 +578,28 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(id).addEventListener("click", action);
             keymap[key] = action;
         }
+        function layerUp() {
+            currentLayer++;
+            if (layers[currentLayer] == undefined) {
+                layers[currentLayer] = new Layer()
+            }
+        }
+        keymap["ArrowUp"] = layerUp;
+        function layerDown() {
+            currentLayer--;
+            if (layers[currentLayer] == undefined) {
+                layers[currentLayer] = new Layer()
+            }
+        }
+        keymap["ArrowDown"] = layerDown;
+        function layerCenter() {
+            currentLayer = 0;
+            scrollX = 0;
+            scrollY = 0;
+            zoom = 1;
+            scrollValue = 0;
+        }
+        keymap["Backspace"] = layerCenter
         setMode(Modes.Pan, "pan", "1")
         setMode(Modes.Delete, "delete", "2")
         setMode(Modes.Build, "hammer", "3")
@@ -658,32 +682,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 layers = {
                     0: new Layer()
                 }
+                layerCenter();
             }
         })
 
         // Sidebar buttons
-        function layerUp() {
-            currentLayer++;
-            if (layers[currentLayer] == undefined) {
-                layers[currentLayer] = new Layer()
-            }
-        }
-        keymap["ArrowUp"] = layerUp;
-        function layerDown() {
-            currentLayer--;
-            if (layers[currentLayer] == undefined) {
-                layers[currentLayer] = new Layer()
-            }
-        }
-        keymap["ArrowDown"] = layerDown;
-        function layerCenter() {
-            currentLayer = 0;
-            scrollX = 0;
-            scrollY = 0;
-            zoom = 1;
-            scrollValue = 0;
-        }
-        keymap["Backspace"] = layerCenter
+        
         document.getElementById("layerup").addEventListener("click", layerUp);
         document.getElementById("layercenter").addEventListener("click", layerCenter);
         document.getElementById("layerdown").addEventListener("click", layerDown);
